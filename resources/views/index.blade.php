@@ -7,11 +7,11 @@
 @section('content')
     <div>
         @forelse($tasks as $task)
-            <div><a href="{{route('tasks.show', ['id' => $task->id])}}"> {{$task->title}} </a></div>
+            <div><a href="{{route('tasks.show', ['task' => $task->id])}}"> {{$task->title}} </a></div>
         @empty
-            <div><h2>No data available</h2></div>
+            <div>
+                <h2>No data available</h2>
+            </div>
         @endforelse
     </div>
 @endsection
-
-

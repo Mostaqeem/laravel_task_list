@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Requests\TaskRequest;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Request;
@@ -61,18 +62,18 @@ use App\Models\Task;
 
 //php artisan route:list     =>shows all the routes
 
-Route::get('/', function(){
-  return redirect() -> route('tasks.index');
+Route::get('/', function () {
+  return redirect()->route('tasks.index');
 });
 
 Route::get('/tasks', function () {
-    return view('index',[
-      /**
-       * php artisan tinker
-       * App\Models\Task::select('id', 'title')->where('completed', 'true')->get();
-       */
-        'tasks' => Task::latest()->get()
-    ]);
+  return view('index', [
+    /**
+     * php artisan tinker
+     * App\Models\Task::select('id', 'title')->where('completed', 'true')->get();
+     */
+    'tasks' => Task::latest()->get()
+  ]);
 })->name('tasks.index');
 
 
@@ -80,62 +81,66 @@ Route::get('/tasks', function () {
 
 
 //Route for input form
-Route::view('/tasks/create','create')->name('tasks.create');
+Route::view('/tasks/create', 'create')->name('tasks.create');
 
 // post method to retrive data from the form.
-Route::post('/tasks', function(Request $request){
+Route::post('/tasks', function (TaskRequest $request) {
   // dd($request->all());
-  $data = $request->validate([
-    'title' => 'required|max:255',
-    'description' => 'required',
-    'long_description' => 'required'
-  ]);
 
-  $task = new Task();
-  $task->title = $data['title'];
-  $task->description = $data['description'];
-  $task->long_description = $data['long_description'];
-  $task->save();
+  // $data = $request->validated();
 
-  return redirect()->route('tasks.show', ['id'=>$task->id])
-          ->with('success', 'Task Created Successfully!!');
+  // $task = new Task();
+  // $task->title = $data['title'];
+  // $task->description = $data['description'];
+  // $task->long_description = $data['long_description'];
+  // $task->save();
+
+  $task = Task::create($request->validated());
+
+  return redirect()->route('tasks.show', ['task' => $task->id])
+    ->with('success', 'Task Created Successfully!!');
 })->name('tasks.store');
 
 
 
 //PUT method is used to PUT the data to update
-Route::put('/tasks/{id}', function($id ,Request $request){
-  
-  $data = $request->validate([
-    'title' => 'required|max:255',
-    'description' => 'required',
-    'long_description' => 'required'
-  ]);
+Route::put('/tasks/{task}', function (Task $task, TaskRequest $request) {
 
-  $task = Task::findOrFail($id);
-  $task->title = $data['title'];
-  $task->description = $data['description'];
-  $task->long_description = $data['long_description'];
-  $task->save();
 
-  return redirect()->route('tasks.show', ['id'=>$task->id])
-          ->with('success', 'Task Updated Successfully!!');
+  // $data = $request->validated();
+
+  // $task->title = $data['title'];
+  // $task->description = $data['description'];
+  // $task->long_description = $data['long_description'];
+  // $task->save();
+
+  $task->update($request->validated());
+
+  return redirect()->route('tasks.show', ['task' => $task->id])
+    ->with('success', 'Task Updated Successfully!!');
 })->name('tasks.update');
 
 
 //this route is for update or edit
-Route::get('/tasks/{id}/edit', function($id){ 
-  return view('edit',['task' => \App\Models\Task::findOrFail($id)]) ;
+Route::get('/tasks/{task}/edit', function (Task $task) {
+  return view('edit', ['task' => $task]);
 })->name('tasks.edit');
 
 
 //passes on the $task parameter or variable to the 'show' blade template
-Route::get('/tasks/{id}', function($id){ 
-  return view('show',['task' => \App\Models\Task::findOrFail($id)]) ;
+Route::get('/tasks/{task}', function (Task $task) {
+  return view(
+    'show',
+    ['task' => $task]
+  );
 })->name('tasks.show');
 
 
-
+Route::delete('/tasks/{task}', function (Task $task) {
+  $task->delete();
+  return redirect()->route('tasks.index')
+    ->with('success', 'Task was deleted successfully!');
+})->name('tasks.destroy');
 
 
 
