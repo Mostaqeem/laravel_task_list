@@ -72,7 +72,7 @@ Route::get('/tasks', function () {
      * php artisan tinker
      * App\Models\Task::select('id', 'title')->where('completed', 'true')->get();
      */
-    'tasks' => Task::latest()->get()
+    'tasks' => Task::latest()->paginate(10)
   ]);
 })->name('tasks.index');
 
@@ -142,6 +142,15 @@ Route::delete('/tasks/{task}', function (Task $task) {
     ->with('success', 'Task was deleted successfully!');
 })->name('tasks.destroy');
 
+
+
+Route::put('/tasks/{task}/complete', function (Task $task) {
+  $task->toggleComplete();
+
+  return redirect()->back()
+    ->with('success', 'Task was marked as completed!');
+
+})->name('tasks.toggle-complete');
 
 
 

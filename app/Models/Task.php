@@ -16,6 +16,11 @@ class Task extends Model
         'long_description'
     ];
 
+    function toggleComplete() {
+        $this->completed = !$this->completed;
+        $this->save();
+    }
+
 
     /**
      * The guarded property is the opposite of the fillable property. 
